@@ -3,18 +3,16 @@ use std::{thread, time};
 extern crate rand;
 use rand::Rng;
 
-const TRANSITION: [i32; 8] = [0, 1, 1, 0, 1, 1, 1, 0];
-
 const SLEEP_MILLIS: u64 = 100;
 
-const LENGTH: usize = 160;
+const LENGTH: usize = 80;
 type Cells = [i32; LENGTH];
 
 fn main() {
     let mut rng = rand::thread_rng();
     let mut cells = [0; LENGTH];
     for i in 0..LENGTH {
-        cells[i] = rng.gen_range(0, 2);
+        cells[i] = rng.gen_range(0, 3) - 1;
     }
 
     print_cells(&cells);
@@ -33,32 +31,38 @@ fn sleep() {
 
 fn print_cells(cells: &Cells) {
     for i in 0..LENGTH {
-        print!("{}", if cells[i] == 1 { "x" } else { " " });
+        print!("{:2}", cells[i]);
     }
     println!();
 }
 
 fn update(cells: &Cells) -> Cells {
     let mut new_cells = [0; LENGTH];
-    new_cells[0] = cells[0];
+    new_cells[0] = new_cell((0, cells[0], cells[1]));
     for i in 1..(LENGTH - 1) {
         new_cells[i] = new_cell((cells[i - 1], cells[i], cells[i + 1]));
     }
-    new_cells[LENGTH - 1] = cells[LENGTH - 1];
+    new_cells[LENGTH - 1] = new_cell((cells[LENGTH - 2], cells[LENGTH - 1], 0));
 
     new_cells
 }
 
 fn new_cell(neighbor_cells: (i32, i32, i32)) -> i32 {
     match neighbor_cells {
-        (1, 1, 1) => TRANSITION[0],
-        (1, 1, 0) => TRANSITION[1],
-        (1, 0, 1) => TRANSITION[2],
-        (1, 0, 0) => TRANSITION[3],
-        (0, 1, 1) => TRANSITION[4],
-        (0, 1, 0) => TRANSITION[5],
-        (0, 0, 1) => TRANSITION[6],
-        (0, 0, 0) => TRANSITION[7],
+        (0, 0, -1) => -1,
+        (0, 0, _) => 0,
+        (0, 1, 1) => 1,
+        (0, 1, _) => 0,
+        (1, 0, -1) => 0,
+        (1, 0, _) => 1,
+        (1, 1, 1) => 1,
+        (1, 1, _) => 0,
+        (-1, 0, -1) => -1,
+        (-1, 0, _) => 0,
+        (-1, 1, 1) => 1,
+        (-1, 1, _) => 0,
+        (-1, -1, _) => -1,
+        (_, -1, _) => 0,
         _ => unreachable!(),
     }
 }
