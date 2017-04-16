@@ -27,7 +27,6 @@ fn main() {
     }
 }
 
-#[inline]
 fn sleep() {
     thread::sleep(time::Duration::from_millis(SLEEP_MILLIS));
 }
@@ -40,10 +39,12 @@ fn print_cells(cells: &Cells) {
 }
 
 fn update(cells: &Cells) -> Cells {
-    let mut new_cells = *cells;
+    let mut new_cells = [0; LENGTH];
+    new_cells[0] = cells[0];
     for i in 1..(LENGTH - 1) {
         new_cells[i] = new_cell((cells[i - 1], cells[i], cells[i + 1]));
     }
+    new_cells[LENGTH - 1] = cells[LENGTH - 1];
 
     new_cells
 }
